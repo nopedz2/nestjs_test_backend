@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './entities/user.schema';
 import mongoose, { Model } from 'mongoose';
-import { hashPasswordHelpers } from '../helpers/util';
+import { hashPasswordHelpers } from 'y/common';
 import aqp from 'api-query-params';
 import { register } from 'node:module';
 import dayjs from 'dayjs';
