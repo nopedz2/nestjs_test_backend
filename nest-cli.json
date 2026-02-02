@@ -23,6 +23,24 @@
         "tsConfigPath": "apps/auth-service/tsconfig.app.json"
       }
     },
+    "business": {
+      "type": "application",
+      "root": "apps/business",
+      "entryFile": "main",
+      "sourceRoot": "apps/business/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/business/tsconfig.app.json"
+      }
+    },
+    "masterdata": {
+      "type": "application",
+      "root": "apps/masterdata",
+      "entryFile": "main",
+      "sourceRoot": "apps/masterdata/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/masterdata/tsconfig.app.json"
+      }
+    },
     "nestjs-demo": {
       "type": "application",
       "root": "apps/nestjs-demo",
@@ -30,6 +48,15 @@
       "sourceRoot": "apps/nestjs-demo/src",
       "compilerOptions": {
         "tsConfigPath": "apps/nestjs-demo/tsconfig.app.json"
+      }
+    },
+    "worker": {
+      "type": "application",
+      "root": "apps/worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/worker/tsconfig.app.json"
       }
     }
   }
