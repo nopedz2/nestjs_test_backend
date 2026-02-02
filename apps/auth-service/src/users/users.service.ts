@@ -13,10 +13,11 @@ import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UsersService {
+  // constructor và các phương thức khác: bao gồm create, findAll, findOne, update, remove
   constructor(
-    @InjectModel(User.name) 
-    private userModel: Model<UserDocument>,
-    private readonly mailerService: MailerService
+    @InjectModel(User.name) // Inject the User model : gồm UserDocument
+    private userModel: Model<UserDocument>,   // mongoose model
+    private readonly mailerService: MailerService  // MailerService
   ) {}
 
   isEmailExist = async (email: string) => {
@@ -40,11 +41,11 @@ export class UsersService {
       address,
     });
     return {
-      ...user.toObject(),
+      ...user.toObject(),  // convert mongoose document to plain object
       password: undefined,
     };
   }
-
+ // tìm kiêm và phân trang, sắp xếp, lọc
   async findAll(query: string, current: number, pageSize: number) {
     const { filter, sort, population } = aqp(query);
     if(!filter.current) delete filter.current;
@@ -130,8 +131,8 @@ export class UsersService {
         text: 'welcome', // plaintext body
         template:"register.hbs",
         context:{
-          name:user?.name ?? user.email,
-          activationCode:codeId
+          name:user?.name ?? user.email, // sử dụng tên nếu có, nếu không thì dùng email
+          activationCode:codeId   // mã kích hoạt
         }
       }
     )

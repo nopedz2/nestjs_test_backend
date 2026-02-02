@@ -10,7 +10,7 @@ export class AuthsService {
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
-
+   // validate user khi đăng nhập
   async validateUser(username: string, pass: string): Promise<any> {
     try {
       const user = await this.usersService.findByEmail(username);
@@ -28,7 +28,7 @@ export class AuthsService {
   }
 
   async login(user: any) {
-    const payload = { sub: user._id, username: user.email };
+    const payload = { sub: user._id, username: user.email }; // payload cho JWT: với sub là userId, username là email
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
