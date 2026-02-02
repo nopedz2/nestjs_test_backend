@@ -13,11 +13,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 @Module({
   imports: [
-    UsersModule,
     RestaurantsModule,
     ReviewsModule,
     BillsModule,
-    AuthsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
