@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  nestjs:
+    env_file: .env
+    build: .
+    container_name: nestjs-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nestjs_demo
+      - NODE_ENV=development
+    networks:
+      - nestjs-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  auth-service:
+    env_file: .env
+    build: .
+    container_name: auth-service
+    command: ["node", "dist/apps/auth-service/main"]
+    ports:
+      - "3001:3000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nestjs_demo
+      - NODE_ENV=development
+    networks:
+      - nestjs-network
+
+  business:
+    env_file: .env
+    build: .
+    container_name: business-service
+    command: ["node", "dist/apps/business/main"]
+    ports:
+      - "3002:3000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nestjs_demo
+      - NODE_ENV=development
+    networks:
+      - nestjs-network
+
+  masterdata:
+    env_file: .env
+    build: .
+    container_name: masterdata-service
+    command: ["node", "dist/apps/masterdata/main"]
+    ports:
+      - "3003:3000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nestjs_demo
+      - NODE_ENV=development
+    networks:
+      - nestjs-network
+
+  worker:
+    env_file: .env
+    build: .
+    container_name: worker-service
+    command: ["node", "dist/apps/worker/main"]
+    ports:
+      - "3004:3000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nestjs_demo
+      - NODE_ENV=development
+    networks:
+      - nestjs-network
+
+  mongo:
+    image: mongo:6
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - nestjs-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo_data:
+
+networks:
+  nestjs-network:
+    driver: bridge
