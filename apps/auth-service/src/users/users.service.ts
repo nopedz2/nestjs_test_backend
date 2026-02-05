@@ -27,7 +27,7 @@ export class UsersService {
   };
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { name, email, phone, address } = createUserDto;
+    const { name, email, phone, address, isActive, role } = createUserDto;
     const isExist = await this.isEmailExist(email);
     if (isExist) {
       throw new BadRequestException('Email already exists');
@@ -39,6 +39,8 @@ export class UsersService {
       password: hashPassword,
       phone,
       address,
+      isActive: isActive ?? false,
+      role: role ?? 'USER',
     });
     return {
       ...user.toObject(),  // convert mongoose document to plain object
@@ -119,23 +121,23 @@ export class UsersService {
       name,
       email,
       password: hashPassword,
-      isActive: false,
+      isActive: true,
       codeId: codeId,
       codeExpire: dayjs().add(1, 'minutes').toDate(),
     });
-    await this.mailerService.sendMail(
-      {
-        to: user.email, // list of receivers
-        from: 'noreply@nestjs.com', // sender address
-        subject: 'Activate your account at @noe', // Subject line
-        text: 'welcome', // plaintext body
-        template:"register.hbs",
-        context:{
-          name:user?.name ?? user.email, // sử dụng tên nếu có, nếu không thì dùng email
-          activationCode:codeId   // mã kích hoạt
-        }
-      }
-    )
+    // await this.mailerService.sendMail(
+    //   {
+    //     to: user.email, // list of receivers
+    //     from: 'noreply@nestjs.com', // sender address
+    //     subject: 'Activate your account at @noe', // Subject line
+    //     text: 'welcome', // plaintext body
+    //     template:"register.hbs",
+    //     context:{
+    //       name:user?.name ?? user.email, // sử dụng tên nếu có, nếu không thì dùng email
+    //       activationCode:codeId   // mã kích hoạt
+    //     }
+    //   }
+    // )
     return {
       _id: user._id,
     };

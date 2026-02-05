@@ -30,7 +30,7 @@ export class AuthsService {
   }
 
   async login(user: any) {
-    const payload = { sub: user._id, username: user.email }; // payload cho JWT: với sub là userId, username là email
+    const payload = { sub: user._id, username: user.email, role: user.role }; // payload cho JWT: với sub là userId, username là email, role
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
