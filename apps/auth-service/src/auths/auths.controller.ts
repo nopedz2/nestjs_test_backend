@@ -12,7 +12,7 @@ export class AuthsController {
     private readonly mailerService: MailerService
   ) {}
 
-  @Post("login")
+  @Post('login')
   @Public()
   @UseGuards( LocalAuthGuard) // Sử dụng LocalAuthGuard để xác thực người dùng
   handleLogin(@Request() req) {

@@ -12,6 +12,7 @@ export class User {
   @Prop({ default: false }) isActive?: boolean;
   @Prop() codeId?: string;
   @Prop() codeExpire?: Date;
+  @Prop({ default: 'USER' }) role?: string; // USER, ADMIN, HR
 }
 
 export type UserDocument = User & Document;
