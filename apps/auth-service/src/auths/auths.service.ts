@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { comparePasswordHelpers } from 'y/common';
 import { UsersService } from '../users/users.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { JwtAuthGuard } from 'y/common';
+
 
 @Injectable()
 export class AuthsService {

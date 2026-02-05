@@ -93,7 +93,7 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
   ) {
     return this.userModel
-      .findByIdAndUpdate({_id: updateUserDto._id}, updateUserDto, { new: true })
+      .findByIdAndUpdate({_id: updateUserDto._id}, updateUserDto, { new: true }) // trả về document sau khi cập nhật
       .exec();
   }
 
