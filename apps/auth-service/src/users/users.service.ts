@@ -1,39 +1,38 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './entities/user.schema';
-import mongoose, { Model } from 'mongoose';
 import { hashPasswordHelpers } from 'y/common';
 import aqp from 'api-query-params';
-import { register } from 'node:module';
-import dayjs from 'dayjs';
-import { v4 as uuidv4 } from 'uuid';
-import { MailerService } from '@nestjs-modules/mailer';
+import mongoose from 'mongoose';
+import { ChangePasswordAuthDto } from './dto/change-password-auth.dto';
+import { compare } from 'bcrypt';
+import { User, UserDocument } from './schema/user.schema';
+import { UsersRepository } from './user.repository';
+
+
 
 @Injectable()
 export class UsersService {
   // constructor và các phương thức khác: bao gồm create, findAll, findOne, update, remove
   constructor(
-    @InjectModel(User.name) // Inject the User model : gồm UserDocument
-    private userModel: Model<UserDocument>,   // mongoose model
-    private readonly mailerService: MailerService  // MailerService
+    protected readonly repo: UsersRepository,
   ) {}
 
+
   isEmailExist = async (email: string) => {
-    const user = await this.userModel.exists({ email });
-    if (user) return true;
-    return false;
+    return this.repo.exists({ email });
   };
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<any> {
+    // returned object will be a plain user without password, not the mongoose document
+
     const { name, email, phone, address, isActive, role } = createUserDto;
     const isExist = await this.isEmailExist(email);
     if (isExist) {
       throw new BadRequestException('Email already exists');
     }
     const hashPassword = await hashPasswordHelpers(createUserDto.password);
-    const user = await this.userModel.create({
+    const user: UserDocument = await this.repo.create({
       name,
       email,
       password: hashPassword,
@@ -43,7 +42,7 @@ export class UsersService {
       role: role ?? 'USER',
     });
     return {
-      ...user.toObject(),  // convert mongoose document to plain object
+      ...user.toObject(), // chuyển đổi document thành plain object để có thể xóa trường password
       password: undefined,
     };
   }
@@ -55,16 +54,17 @@ export class UsersService {
     if(!current) current = 1;
     if(!pageSize) pageSize = 10;
 
-    const totalItems = await this.userModel.countDocuments(filter);
+    const totalItems = await this.repo.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
-    let q = this.userModel
-      .find(filter)
+    // build query using repository helper (repo returns queryable object)
+    let q = this.repo.find(filter)
       .limit(pageSize)
       .skip(skip || (current - 1) * pageSize)
       .sort({ createdAt: -1 })
-      .select('-password');  // Loại bỏ password
+      .select('-password')
+      .lean();
 
     if (sort) q = q.sort(sort as any);
     if (pageSize && skip) q = q.limit(pageSize).skip(skip);
@@ -84,63 +84,75 @@ export class UsersService {
 }
 
   async findOne(id: string): Promise<User | null> {
-    return this.userModel.findById(id).exec();
+    return this.repo.findById(id)
+      .select('-password -createdAt -updatedAt -__v -isActive -codeId -codeExpire')
+      .exec();
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return await this.userModel.findOne({ email }).exec();
-  }
 
   async update(
+    userId: string,
     updateUserDto: UpdateUserDto,
   ) {
-    return this.userModel
-      .findByIdAndUpdate({_id: updateUserDto._id}, updateUserDto, { new: true }) // trả về document sau khi cập nhật
+    // Validate user ID format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('Invalid user ID');
+    }
+
+    // Check if user exists
+    const user = await this.repo.findById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Prepare update data (only include provided fields)
+    const updateData: any = {};
+    if (updateUserDto.name !== undefined) updateData.name = updateUserDto.name;
+    if (updateUserDto.phone !== undefined) updateData.phone = updateUserDto.phone;
+    if (updateUserDto.address !== undefined) updateData.address = updateUserDto.address;
+    if (updateUserDto.image !== undefined) updateData.image = updateUserDto.image;
+
+    // Update and return sanitized user
+    const updatedUser = await this.repo
+      .findByIdAndUpdate(userId, updateData, { new: true })
+      .select('-password -createdAt -updatedAt -__v -isActive -codeId -codeExpire')
       .exec();
+
+    return updatedUser;
   }
 
   async remove(_id: string) {
     //check valid mongoose id
     if(mongoose.Types.ObjectId.isValid(_id)) {
       // delete
-      return this.userModel.findByIdAndDelete(_id).exec();
-  }else{
-    throw new BadRequestException('Invalid user ID');
-  }
-}
-
-  async handleRegister(registerDto: CreateUserDto) {
-        const { name, email, phone } = registerDto;
-    const isExist = await this.isEmailExist(email);
-    if (isExist) {
-      throw new BadRequestException('Email already exists');
+      return this.repo.findByIdAndDelete(_id).exec();
+    } else {
+      throw new BadRequestException('Invalid user ID');
     }
-    const hashPassword = await hashPasswordHelpers(registerDto.password);
-    const codeId = uuidv4();
-    const user = await this.userModel.create({
-      name,
-      email,
-      password: hashPassword,
-      isActive: true,
-      codeId: codeId,
-      codeExpire: dayjs().add(1, 'minutes').toDate(),
-    });
-    // await this.mailerService.sendMail(
-    //   {
-    //     to: user.email, // list of receivers
-    //     from: 'noreply@nestjs.com', // sender address
-    //     subject: 'Activate your account at @noe', // Subject line
-    //     text: 'welcome', // plaintext body
-    //     template:"register.hbs",
-    //     context:{
-    //       name:user?.name ?? user.email, // sử dụng tên nếu có, nếu không thì dùng email
-    //       activationCode:codeId   // mã kích hoạt
-    //     }
-    //   }
-    // )
-    return {
-      _id: user._id,
-    };
-    
-}
+  }
+
+
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordAuthDto) {
+    const user = await this.repo.findById(userId); // Lấy user và bao gồm trường password
+    const { oldPassword, newPassword } = changePasswordDto;
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const isMatch = await compare(oldPassword, user.password); // So sánh oldPassword với password đã hash trong database
+    if (!isMatch) {
+      throw new BadRequestException('Old password is incorrect');
+    }
+
+    const newHashedPassword = await hashPasswordHelpers(newPassword); // Hash newPassword
+    user.password = newHashedPassword;    
+    if(oldPassword === newPassword) {
+      throw new BadRequestException('New password must be different from old password');
+    }
+    await user.save();
+
+    return { message: 'Password changed successfully' };
+  }
+
 }
