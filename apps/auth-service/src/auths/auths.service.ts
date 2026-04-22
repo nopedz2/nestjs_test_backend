@@ -6,7 +6,6 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../users/schema/user.schema';
 import { UsersRepository } from '../users/user.repository';
 
 
@@ -47,7 +46,18 @@ export class AuthsService {
       role: user.role ?? 'USER',
     };
 
-    const access_token = await this.jwtService.signAsync(payload);
+   const access_token = await this.jwtService.signAsync(payload, {
+    expiresIn: '15m', 
+  });
+
+  const refresh_token = await this.jwtService.signAsync(payload, {
+    expiresIn: '7d',
+  });
+
+  const refreshTokenHash = await hashPasswordHelpers(refresh_token);
+
+  
+    await this.repo.updateRefreshToken(user._id, refreshTokenHash);
 
     // sanitize user object (remove sensitive fields)
     let safeUser: any = user;
@@ -60,6 +70,7 @@ export class AuthsService {
 
     return {
       access_token,
+      refresh_token,
     };
   }
 
@@ -101,4 +112,32 @@ export class AuthsService {
 
     return { _id: user._id };
   }
+  async refreshToken(refreshToken: string) {
+  try {
+    // Xác thực refresh token
+    const payload = await this.jwtService.verifyAsync(refreshToken);
+    
+    const user = await this.repo.findById(payload.sub);
+    const refreshTokenHash = await hashPasswordHelpers(refreshToken);
+    if (!user || user.refreshToken !== refreshTokenHash) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    // Sinh access token mới
+    const newAccessToken = await this.jwtService.signAsync({
+      email: user.email,
+      sub: user._id?.toString ? user._id.toString() : user._id,
+      username: user.email,
+      role: user.role ?? 'USER',
+    }, {
+      expiresIn: '15m',
+    });
+
+    return {
+      access_token: newAccessToken,
+    };
+  } catch (error) {
+    throw new UnauthorizedException('Invalid refresh token');
+  }
+}
 }

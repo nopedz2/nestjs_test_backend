@@ -45,7 +45,8 @@ import { JwtMiddleware } from './jwt.middleware';
         secret: configService.get<string>('JWT_SECRET'),
         // cast expiresIn to any to satisfy type differences across jwt versions
         signOptions: {
-          expiresIn: (configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') ?? '3600s') as any,
+          expiresIn: (configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') ?? '900s') as any,
+          expiresInRefreshToken: (configService.get<any>('JWT_REFRESH_TOKEN_EXPIRES_IN') ?? '7d') as any,
         },
       }),
       inject: [ConfigService],
@@ -60,8 +61,8 @@ export class AuthServiceModule implements NestModule {
     consumer
       .apply(JwtMiddleware)
       .forRoutes(
-        { path: 'users*', method: RequestMethod.ALL },
-        { path: 'profile*', method: RequestMethod.ALL },
+        { path: 'users/*path', method: RequestMethod.ALL },
+        { path: 'profile/*path', method: RequestMethod.ALL },
       );
   }
 }

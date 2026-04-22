@@ -43,4 +43,9 @@ export class AuthsController {
     });
     return 'ok';
   }
+  @Post('refresh')
+  @Public()
+  async refreshToken(@Body() body: { refresh_token: string }) {
+  return this.authsService.refreshToken(body.refresh_token);
+}
 }

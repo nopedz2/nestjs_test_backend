@@ -11,7 +11,7 @@ export class JwtMiddleware implements NestMiddleware {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return next(); // Không có token, tiếp tục (có thể guard sẽ xử lý)
+      return next(); // Không có token ( guard)
     }
 
     const token = authHeader.substring(7); // Bỏ 'Bearer '
@@ -22,8 +22,8 @@ export class JwtMiddleware implements NestMiddleware {
       req.user = payload; // Gán payload vào req.user
       next();
     } catch (error) {
-      // Token không hợp lệ, có thể trả lỗi hoặc tiếp tục
-      console.error('JWT verification failed:');
+
+      console.error('JWT verification failed');
       return res.status(401).json({ message: 'Unauthorized' });
     }
   }

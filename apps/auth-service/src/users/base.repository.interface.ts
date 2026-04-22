@@ -10,4 +10,5 @@ export interface IUsersRepository<T extends Document> {
   findOne(id: string): Promise<T | null>;
   findByIdAndUpdate(id: string, updateData: any, opts?: any): Query<any, T>;
   findByIdAndDelete(id: string): Query<any, T>;
+  updateRefreshToken(userId: string, refreshToken: string): Promise<T | null>;
 }
