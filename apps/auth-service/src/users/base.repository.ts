@@ -42,4 +42,7 @@ export class BaseRepository<T extends Document> implements IUsersRepository<T> {
   findByIdAndDelete(id: string): Query<any, T> {
     return this.userModel.findByIdAndDelete(id);
   }
+  updateRefreshToken(userId: string, refreshToken: string): Promise<T> {
+    return this.userModel.findByIdAndUpdate(userId, { refreshToken }, { new: true }).exec(); // { new: true } để trả về document sau khi đã cập nhật
+  }
 }

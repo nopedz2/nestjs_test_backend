@@ -24,7 +24,9 @@ import { UsersRepository } from './user.repository';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: (configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') ?? '3600s') as any },
+        signOptions: { expiresIn: (configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') ?? '3600s') as any,
+          expiresInRefreshToken: (configService.get<any>('JWT_REFRESH_TOKEN_EXPIRES_IN') ?? '7d') as any,
+         },
       }),
       inject: [ConfigService],
     }),

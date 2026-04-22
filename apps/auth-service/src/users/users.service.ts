@@ -89,10 +89,7 @@ export class UsersService {
   }
 
 
-  async update(
-    userId: string,
-    updateUserDto: UpdateUserDto,
-  ) {
+  async update(userId: string, updateUserDto: UpdateUserDto,) {
     // Validate user ID format
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new BadRequestException('Invalid user ID');
@@ -113,7 +110,7 @@ export class UsersService {
 
     // Update and return sanitized user
     const updatedUser = await this.repo
-      .findByIdAndUpdate(userId, updateData, { new: true })
+      .findByIdAndUpdate(userId, updateData, { new: true }) // { new: true } để trả về document sau khi đã cập nhật
       .select('-password -createdAt -updatedAt -__v -isActive -codeId -codeExpire')
       .exec();
 
