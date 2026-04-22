@@ -13,7 +13,6 @@ import { UsersRepository } from './user.repository';
 
 @Injectable()
 export class UsersService {
-  // constructor và các phương thức khác: bao gồm create, findAll, findOne, update, remove
   constructor(
     protected readonly repo: UsersRepository,
   ) {}

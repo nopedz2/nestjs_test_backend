@@ -3,9 +3,9 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop() name: string;
+  @Prop({ required: true }) name: string;
   @Prop({ unique: true, required: true }) email: string;
-  @Prop() password: string;
+  @Prop({ required: true }) password: string;
   @Prop() phone?: string;
   @Prop() address?: string;
   @Prop() image?: string;

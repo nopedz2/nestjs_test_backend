@@ -81,7 +81,7 @@ services:
 
   mongo:
     image: mongo:6
-    container_name: mongo-db
+    container_name: mongo-db-new
     ports:
       - "27017:27017"
     volumes:
