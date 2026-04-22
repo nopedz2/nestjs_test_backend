@@ -1,12 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { AuthServiceController } from './auth-service.controller';
 import { AuthServiceService } from './auth-service.service';
 import { AuthsModule } from './auths/auths.module';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtMiddleware } from './jwt.middleware';
 
 @Module({
   imports: [
@@ -54,4 +55,13 @@ import { JwtModule } from '@nestjs/jwt';
   controllers: [AuthServiceController],
   providers: [AuthServiceService],
 })
-export class AuthServiceModule {}
+export class AuthServiceModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtMiddleware)
+      .forRoutes(
+        { path: 'users*', method: RequestMethod.ALL },
+        { path: 'profile*', method: RequestMethod.ALL },
+      );
+  }
+}
