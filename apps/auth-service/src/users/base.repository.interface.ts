@@ -7,8 +7,11 @@ export interface IUsersRepository<T extends Document> {
   countDocuments(filter: any): Promise<number>;
   find(filter: any): Query<any, T>;
   findById(id: string): Query<any, T>;
-  findOne(id: string): Promise<T | null>;
   findByIdAndUpdate(id: string, updateData: any, opts?: any): Query<any, T>;
+  findOneAndUpdate(filter: any, updateData: any, opts?: any): Query<any, T>;
   findByIdAndDelete(id: string): Query<any, T>;
-  updateRefreshToken(userId: string, refreshToken: string): Promise<T | null>;
+  updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+  ): Promise<T | null>;
 }

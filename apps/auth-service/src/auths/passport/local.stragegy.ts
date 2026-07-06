@@ -13,10 +13,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(username: string, password: string): Promise<any> {
     const user = await this.authService.validateUser(username, password);
     if (!user) {
-      throw new UnauthorizedException("username/password is incorrect");
+      throw new UnauthorizedException('username/password is incorrect');
     }
-    if(user.isActive === false) {
-      throw new UnauthorizedException("Account is not activated. Please check your email to activate your account.");
+    if (user.isActive === false) {
+      throw new UnauthorizedException(
+        'Account is not activated. Please check your email to activate your account.',
+      );
     }
     return user;
   }

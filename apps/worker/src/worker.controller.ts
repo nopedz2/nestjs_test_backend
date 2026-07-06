@@ -56,9 +56,7 @@ export class WorkerController {
   }
 
   @Post('background-task')
-  async addBackgroundTask(
-    @Body() data: { taskName: string; payload: any },
-  ) {
+  async addBackgroundTask(@Body() data: { taskName: string; payload: any }) {
     const job = await this.workerService.addBackgroundTask(
       data.taskName,
       data.payload,

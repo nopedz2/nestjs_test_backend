@@ -4,31 +4,31 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AuthServiceModule,
-    {
-      logger: ['error', 'warn', 'log', 'debug', 'verbose'],
-    }
+  const app = await NestFactory.create(AuthServiceModule, {
+    logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      stopAtFirstError: true,
+    }),
   );
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: false,
-    transform: true,
-    stopAtFirstError: true,
-  }));
   const config = new DocumentBuilder()
     .setTitle('ThuongHai Auth Service API')
     .setDescription('The Auth Service API description')
     .setVersion('1.0')
     .addBearerAuth(
-    {
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      name: 'Authorization',
-      in: 'header',
-    },
-    'access-token', 
-  )
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+      },
+      'access-token',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

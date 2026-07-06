@@ -8,17 +8,22 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from 'y/common';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DepartmentsModule,
-    MongooseModule.forRoot(process.env.MONGO_URI ?? 'mongodb://localhost:27017/nestjs_demo'),
+    MongooseModule.forRoot(
+      process.env.MONGO_URI ?? 'mongodb://localhost:27017/nestjs_demo',
+    ),
     PassportModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN ? Number(process.env.JWT_ACCESS_TOKEN_EXPIRES_IN) : '3600s' as any },
+      signOptions: {
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN
+          ? Number(process.env.JWT_ACCESS_TOKEN_EXPIRES_IN)
+          : ('3600s' as any),
+      },
     }),
   ],
   controllers: [MasterdataController],

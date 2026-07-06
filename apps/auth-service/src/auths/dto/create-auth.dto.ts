@@ -1,15 +1,28 @@
-import { IsNotEmpty, IsOptional} from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsEmail,
+  IsString,
+  MinLength,
+} from 'class-validator';
 export class CreateAuthDto {
-    @IsNotEmpty({ message: 'Email is required' })
-    email: string;
-    @IsNotEmpty({ message: 'Password is required' })
-    password: string;
-    @IsOptional()
-    name: string;
-    @IsOptional()
-    phone: string;
-    @IsOptional()
-    address: string;
-    @IsOptional()
-    image: string;
+  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Email is not valid' })
+  email: string;
+  @IsNotEmpty({ message: 'Password is required' })
+  @IsString()
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  password: string;
+  @IsOptional()
+  @IsString()
+  name?: string;
+  @IsOptional()
+  @IsString()
+  phone?: string;
+  @IsOptional()
+  @IsString()
+  address?: string;
+  @IsOptional()
+  @IsString()
+  image?: string;
 }

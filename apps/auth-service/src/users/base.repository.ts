@@ -1,18 +1,17 @@
 import { Model, Query, Document } from 'mongoose';
 import { IUsersRepository } from './base.repository.interface';
+// import { AnyAaaaRecord } from 'node:dns';
 
 // base repository no longer injects a concrete model directly; subclasses provide the model
 export class BaseRepository<T extends Document> implements IUsersRepository<T> {
-  constructor(
-    protected readonly userModel: Model<T>,
-  ) {}
+  constructor(protected readonly userModel: Model<T>) {}
 
   findByEmail(email: string): Promise<T | null> {
     return this.userModel.findOne({ email }).exec();
   }
 
   exists(filter: any): Promise<boolean> {
-    return this.userModel.exists(filter).then(u => !!u);
+    return this.userModel.exists(filter).then((u) => !!u);
   }
 
   create(data: Partial<T>): Promise<T> {
@@ -31,18 +30,31 @@ export class BaseRepository<T extends Document> implements IUsersRepository<T> {
     return this.userModel.findById(id);
   }
 
-  findOne(id: string): Promise<T| null> {
-    return this.userModel.findOne({ _id: id }).exec();
+  findByIdAndUpdate(
+    id: string,
+    updateData: any,
+    opts: any = {},
+  ): Query<any, T> {
+    return this.userModel.findByIdAndUpdate(id, updateData, opts);
   }
 
-  findByIdAndUpdate(id: string, updateData: any, opts: any = {}) : Query<any, T> {
-    return this.userModel.findByIdAndUpdate(id, updateData, opts);
+  findOneAndUpdate(
+    filter: any,
+    updateData: any,
+    opts: any = {},
+  ): Query<any, T> {
+    return this.userModel.findOneAndUpdate(filter, updateData, opts);
   }
 
   findByIdAndDelete(id: string): Query<any, T> {
     return this.userModel.findByIdAndDelete(id);
   }
-  updateRefreshToken(userId: string, refreshToken: string): Promise<T> {
-    return this.userModel.findByIdAndUpdate(userId, { refreshToken }, { new: true }).exec(); // { new: true } để trả về document sau khi đã cập nhật
+  updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+  ): Promise<T | null> {
+    return this.userModel
+      .findByIdAndUpdate(userId, { refreshToken }, { new: true })
+      .exec(); // { new: true } để trả về document sau khi đã cập nhật
   }
 }

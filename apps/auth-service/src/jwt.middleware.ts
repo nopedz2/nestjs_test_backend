@@ -17,12 +17,13 @@ export class JwtMiddleware implements NestMiddleware {
     const token = authHeader.substring(7); // Bỏ 'Bearer '
 
     try {
-      const secret = this.configService.get<string>('JWT_SECRET');
+      const secret =
+        this.configService.get<string>('JWT_SECRET') ||
+        'default_jwt_secret_for_local_dev';
       const payload = jwt.verify(token, secret) as any;
       req.user = payload; // Gán payload vào req.user
       next();
-    } catch (error) {
-
+    } catch {
       console.error('JWT verification failed');
       return res.status(401).json({ message: 'Unauthorized' });
     }
