@@ -10,7 +10,10 @@ export const hashPasswordHelpers = async (plainPassword: string) => {
   }
 };
 
-export const comparePasswordHelpers = async (plainPassword: string, hashedPassword: string) => { 
+export const comparePasswordHelpers = async (
+  plainPassword: string,
+  hashedPassword: string,
+) => {
   try {
     return await bcrypt.compareSync(plainPassword, hashedPassword); // Sử dụng compareSync để so sánh đồng bộ giữa mật khẩu thường và đã băm
   } catch (error) {
@@ -18,8 +21,14 @@ export const comparePasswordHelpers = async (plainPassword: string, hashedPasswo
   }
 };
 
-// export const comparePassword = async (
-//   plainPassword: string,
+export const hashRefreshTokenHelpers = async (plainToken: string) => {
+  try {
+    return await bcrypt.hash(plainToken, saltRounds);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 //   hashedPassword: string,
 // ) => {
 //   try {

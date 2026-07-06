@@ -10,13 +10,19 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Employee.name, schema: EmployeeSchema }]),
+    MongooseModule.forFeature([
+      { name: Employee.name, schema: EmployeeSchema },
+    ]),
     ConfigModule.forRoot({ isGlobal: true }),
     PassportModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN ? Number(process.env.JWT_ACCESS_TOKEN_EXPIRES_IN) : '3600s' as any },
+      signOptions: {
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN
+          ? Number(process.env.JWT_ACCESS_TOKEN_EXPIRES_IN)
+          : ('3600s' as any),
+      },
     }),
   ],
   controllers: [EmployeesController],

@@ -7,4 +7,3 @@ export * from './guards/roles.guard';
 export * from './decorator/roles.decorator';
 export * from './enums/role.enum';
 export * from './strategies/jwt.strategy';
-

@@ -1,4 +1,9 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -11,8 +16,13 @@ import { JwtMiddleware } from './jwt.middleware';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(process.env.MONGO_URI ?? 'mongodb://localhost:27017/nestjs_demo'),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', '../.env', '../../.env'],
+    }),
+    MongooseModule.forRoot(
+      process.env.MONGO_URI ?? 'mongodb://localhost:27017/nestjs_demo',
+    ),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -42,11 +52,13 @@ import { JwtMiddleware } from './jwt.middleware';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         global: true,
-        secret: configService.get<string>('JWT_SECRET'),
+        secret:
+          configService.get<string>('JWT_SECRET') ||
+          'default_jwt_secret_for_local_dev',
         // cast expiresIn to any to satisfy type differences across jwt versions
         signOptions: {
-          expiresIn: (configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') ?? '900s') as any,
-          expiresInRefreshToken: (configService.get<any>('JWT_REFRESH_TOKEN_EXPIRES_IN') ?? '7d') as any,
+          expiresIn: (configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') ??
+            '900s') as any,
         },
       }),
       inject: [ConfigService],
@@ -61,6 +73,7 @@ export class AuthServiceModule implements NestModule {
     consumer
       .apply(JwtMiddleware)
       .forRoutes(
+        { path: 'users', method: RequestMethod.ALL },
         { path: 'users/*path', method: RequestMethod.ALL },
         { path: 'profile/*path', method: RequestMethod.ALL },
       );

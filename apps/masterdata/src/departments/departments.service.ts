@@ -24,7 +24,8 @@ export class DepartmentsService {
   }
 
   update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
-    return this.departmentModel.findByIdAndUpdate(id, updateDepartmentDto, { new: true }).exec();
+    return this.departmentModel
+      .findByIdAndUpdate(id, updateDepartmentDto, { new: true })
+      .exec();
   }
-
 }

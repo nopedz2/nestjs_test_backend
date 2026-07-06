@@ -1,6 +1,6 @@
 export class CreateEmployeeDto {
-    name: string;
-    position: string;
-    department: string;
-    salary: number;
+  name: string;
+  position: string;
+  department: string;
+  salary: number;
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { Roles } from 'y/common';
@@ -27,9 +35,4 @@ export class EmployeesController {
   findByUserId(@Param('id') id: string) {
     return this.employeesService.findByUserId(id);
   }
-
-
-  
-
-
 }

@@ -62,7 +62,6 @@ export class WorkerService {
     }
   }
 
-
   async addEmailJob(
     email: string,
     subject: string,
@@ -78,7 +77,7 @@ export class WorkerService {
         ...data,
       },
       {
-        attempts: 3,  // số lần thử lại nếu thất bại
+        attempts: 3, // số lần thử lại nếu thất bại
         backoff: { type: 'exponential', delay: 2000 }, // thời gian chờ giữa các lần thử lại: tăng dần
         removeOnComplete: true, // xóa job khỏi queue khi hoàn thành
       },

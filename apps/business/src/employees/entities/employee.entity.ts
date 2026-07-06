@@ -1,10 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-
 @Schema({ timestamps: true })
-export class Employee  {
+export class Employee {
   @Prop({ required: true })
-  Id: string;   // liên kết auth-service
+  Id: string; // liên kết auth-service
 
   @Prop({ required: true })
   fullName: string;
